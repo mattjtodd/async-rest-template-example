@@ -29,6 +29,7 @@ public class Controller {
     @RequestMapping("/http")
     public DeferredResult<String> operation() {
         System.out.println(ManagementFactory.getThreadMXBean().getThreadCount());
+        System.out.println(Thread.currentThread());
 
         DeferredResult<String> deferredResult = new DeferredResult<>();
 
@@ -39,7 +40,10 @@ public class Controller {
 
         CompletableFuture
                 .allOf(completableFutures.toArray(new CompletableFuture[completableFutures.size()]))
-                .thenAccept(__ -> deferredResult.setResult("Completed"));
+                .thenAccept(__ -> {
+                    deferredResult.setResult(completableFutures.toString());
+                    System.out.println(Thread.currentThread());
+                });
 
         return deferredResult;
     }
@@ -47,10 +51,14 @@ public class Controller {
     @RequestMapping("/delay")
     public DeferredResult<String> operation2() {
         System.out.println(ManagementFactory.getThreadMXBean().getThreadCount());
+        System.out.println(Thread.currentThread());
 
         DeferredResult<String> deferredResult = new DeferredResult<>();
 
-        executorService.schedule(() -> deferredResult.setResult("Completed"), 15, TimeUnit.SECONDS);
+        executorService.schedule(() -> {
+            deferredResult.setResult("Completed");
+            System.out.println(Thread.currentThread());
+        }, 15, TimeUnit.SECONDS);
 
         return deferredResult;
     }

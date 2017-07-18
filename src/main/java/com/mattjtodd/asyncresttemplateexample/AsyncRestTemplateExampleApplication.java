@@ -32,7 +32,7 @@ public class AsyncRestTemplateExampleApplication {
 				.custom()
 				.setConnectTimeout(connectionTimeout)
 				.setSoTimeout(connectionTimeout)
-				.setIoThreadCount(1)
+				.setIoThreadCount(5)
 				.build();
 
 		return HttpAsyncClients
