@@ -1,5 +1,7 @@
 package com.mattjtodd.asyncresttemplateexample;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,16 +20,29 @@ import java.util.stream.IntStream;
 
 @RestController
 public class Controller {
-    private final AsyncRestTemplate asyncRestTemplate;
+    private final AsyncRestTemplate nettyAsyncRestTemplate;
+
+    private final AsyncRestTemplate httpCommonsAsyncRestTemplate;
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
-    Controller(AsyncRestTemplate asyncRestTemplate) {
-        this.asyncRestTemplate = asyncRestTemplate;
+    Controller(@Autowired @Qualifier("Netty") AsyncRestTemplate nettyAsyncRestTemplate,
+               @Autowired @Qualifier("HttpCommons") AsyncRestTemplate httpCommonsAsyncRestTemplate) {
+        this.nettyAsyncRestTemplate = nettyAsyncRestTemplate;
+        this.httpCommonsAsyncRestTemplate = httpCommonsAsyncRestTemplate;
     }
 
     @RequestMapping("/http")
-    public DeferredResult<String> operation() {
+    public DeferredResult<String> http() {
+        return operation(nettyAsyncRestTemplate);
+    }
+
+    @RequestMapping("/http2")
+    public DeferredResult<String> http2() {
+        return operation(httpCommonsAsyncRestTemplate);
+    }
+
+    DeferredResult<String> operation(AsyncRestTemplate asyncRestTemplate) {
         System.out.println(ManagementFactory.getThreadMXBean().getThreadCount());
         System.out.println(Thread.currentThread());
 
@@ -49,7 +64,7 @@ public class Controller {
     }
 
     @RequestMapping("/delay")
-    public DeferredResult<String> operation2() {
+    public DeferredResult<String> delay() {
         System.out.println(ManagementFactory.getThreadMXBean().getThreadCount());
         System.out.println(Thread.currentThread());
 
